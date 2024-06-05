@@ -2,6 +2,9 @@ package com.example.dogbreeds
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Spinner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,16 +26,18 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         spinner=findViewById(R.id.spinner)
+        spinner.adapter
 
         recyclerView = findViewById(R.id.recycler_main)
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = DogsAdapter(dogsListImage)
         recyclerView.adapter = adapter
+        getListBreeds()
     }
 
-    private fun getListImages() {
+    private fun getListImages(breed: String?) {
         CoroutineScope(Dispatchers.IO).launch {
-            val call = getRetrofit().create(ApiService::class.java).getImagesByBreed("breed/hound/images")
+            val call = getRetrofit().create(ApiService::class.java).getImagesByBreed("breed/$breed/images")
             val response = call.body()
 
             runOnUiThread{
@@ -51,13 +56,17 @@ class MainActivity : AppCompatActivity() {
             val call = getRetrofit().create(ApiService::class.java).getBreeds("breed/list/all")
             val response = call.body()
 
-            runOnUiThread{
+            runOnUiThread{  //AL terminar actualizá la interfaz de usuario
                 if (call.isSuccessful) {
-                    val breedsMap = response?.message
+                    val breedsMap = response?.breeds
                     if(breedsMap!=null){
-                        for (breed in breedsMap.keys){
-                            breedsList.add(breed)
-                        }
+                        breedsList=breedsMap.keys.toMutableList()
+                        //for (breed in breedsMap.keys){
+                        //    breedsList.add(breed)
+                        //}
+                        //for (breed in breedsMap.keys){
+                          //  breedsList.addAll(breedsMap[breed]!!)
+                        //}
                         setSpinner()
                     }
                 }
@@ -66,7 +75,26 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    private fun setSpinner(){
+        val spinnerAdapter= ArrayAdapter(this,android.R.layout.simple_spinner_dropdown_item,breedsList)
+        spinner.adapter=spinnerAdapter
 
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                getListImages(breedsList[position])
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                TODO("Not yet implemented")
+            }
+
+        }
+    }
 
     private fun getRetrofit(): Retrofit {
         return Retrofit.Builder()
