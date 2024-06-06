@@ -26,7 +26,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         spinner=findViewById(R.id.spinner)
-        spinner.adapter
 
         recyclerView = findViewById(R.id.recycler_main)
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -53,7 +52,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun getListBreeds() {
         CoroutineScope(Dispatchers.IO).launch {
-            val call = getRetrofit().create(ApiService::class.java).getBreeds("breed/list/all")
+            val call = getRetrofit().create(ApiService::class.java).getBreeds("breeds/list/all")
             val response = call.body()
 
             runOnUiThread{  //AL terminar actualizá la interfaz de usuario
