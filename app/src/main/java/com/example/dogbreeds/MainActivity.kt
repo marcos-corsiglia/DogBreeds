@@ -1,11 +1,13 @@
 package com.example.dogbreeds
 
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
@@ -13,6 +15,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import kotlin.random.Random
+import kotlin.random.nextInt
 
 class MainActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
@@ -59,13 +63,11 @@ class MainActivity : AppCompatActivity() {
                 if (call.isSuccessful) {
                     val breedsMap = response?.breeds
                     if(breedsMap!=null){
-                        breedsList=breedsMap.keys.toMutableList()
-                        //for (breed in breedsMap.keys){
-                        //    breedsList.add(breed)
-                        //}
-                        //for (breed in breedsMap.keys){
-                          //  breedsList.addAll(breedsMap[breed]!!)
-                        //}
+                        //breedsList=breedsMap.keys.toMutableList()
+                        for (breed in breedsMap.keys){
+                            breedsList.add(breed)
+                            breedsList.addAll(breedsMap[breed]!!.map{ "$breed/$it" })
+                        }
                         setSpinner()
                     }
                 }
@@ -75,7 +77,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun setSpinner(){
-        val spinnerAdapter= ArrayAdapter(this,android.R.layout.simple_spinner_dropdown_item,breedsList)
+        val spinnerAdapter= ArrayAdapter(this,android.R.layout.simple_spinner_dropdown_item,breedsList.map{it.uppercase()})
         spinner.adapter=spinnerAdapter
 
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
